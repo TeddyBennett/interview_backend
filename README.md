@@ -14,7 +14,7 @@ A robust .NET 7 Web API designed for secure passenger record management, identit
 1.  **Clone the repository**:
     ```bash
     git clone [repository-url]
-    cd interview_backend-main
+    cd interview_backend
     ```
 
 2.  **Database Initialization**:
