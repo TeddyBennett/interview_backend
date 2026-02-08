@@ -147,32 +147,6 @@
 					}
 				},
 				{
-					"name": "Rotate API Key",
-					"request": {
-						"method": "POST",
-						"header": [
-							{
-								"key": "Authorization",
-								"value": "Bearer {{adminJwtToken}}",
-								"type": "text"
-							}
-						],
-						"url": {
-							"raw": "{{baseUrl}}/api/admin/apikeys/1/rotate",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"api",
-								"admin",
-								"apikeys",
-								"1",
-								"rotate"
-							]
-						}
-					}
-				},
-				{
 					"name": "Disable API Key",
 					"request": {
 						"method": "PATCH",
