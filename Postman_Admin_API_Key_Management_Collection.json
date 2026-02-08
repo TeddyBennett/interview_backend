@@ -276,7 +276,7 @@
 		},
 		{
 			"key": "apiKeyId",
-			"value": "1",
+			"value": "",
 			"type": "string",
 			"description": "Used for Get/Update/Delete API Key by ID"
 		}
