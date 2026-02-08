@@ -1,0 +1,697 @@
+{
+	"info": {
+		"_postman_id": "f8e2d3c1-1a2b-4c3d-9e4f-5a6b7c8d9e0f",
+		"name": "Backend Test - Complete API",
+		"description": "Comprehensive Postman collection covering all implemented API routes including Admin, User, Passenger, and Error Logging modules.",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "1. Admin Module (JWT)",
+			"description": "Endpoints for Administrator authentication and API Key lifecycle management.",
+			"item": [
+				{
+					"name": "Admin Login",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"var jsonData = pm.response.json();",
+									"if (pm.response.code === 200 && jsonData.data && jsonData.data.token) {",
+									"    pm.environment.set(\"adminJwtToken\", jsonData.data.token);",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"username\": \"admin\",\n    \"password\": \"admin123\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/admin/login",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"admin",
+								"login"
+							]
+						}
+					}
+				},
+				{
+					"name": "Create API Key",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"var jsonData = pm.response.json();",
+									"if (pm.response.code === 200 && jsonData.data && jsonData.data.apiKey) {",
+									"    pm.environment.set(\"xApiKey\", jsonData.data.apiKey);",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{adminJwtToken}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"clientName\": \"API Consumer Client\",\n    \"expiresAt\": null\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/admin/apikeys",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"admin",
+								"apikeys"
+							]
+						}
+					}
+				},
+				{
+					"name": "Get All API Keys",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{adminJwtToken}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/api/admin/apikeys",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"admin",
+								"apikeys"
+							]
+						}
+					}
+				},
+				{
+					"name": "Get API Key By ID",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{adminJwtToken}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/api/admin/apikeys/1",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"admin",
+								"apikeys",
+								"1"
+							]
+						}
+					}
+				},
+				{
+					"name": "Disable API Key",
+					"request": {
+						"method": "PATCH",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{adminJwtToken}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/api/admin/apikeys/1/disable",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"admin",
+								"apikeys",
+								"1",
+								"disable"
+							]
+						}
+					}
+				},
+				{
+					"name": "Enable API Key",
+					"request": {
+						"method": "PATCH",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{adminJwtToken}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/api/admin/apikeys/1/enable",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"admin",
+								"apikeys",
+								"1",
+								"enable"
+							]
+						}
+					}
+				},
+				{
+					"name": "Delete API Key",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{adminJwtToken}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/api/admin/apikeys/1",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"admin",
+								"apikeys",
+								"1"
+							]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "2. User Module (API Key)",
+			"description": "CRUD operations for system Users. Protected by X-API-Key.",
+			"item": [
+				{
+					"name": "Create User",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"var jsonData = pm.response.json();",
+									"if (pm.response.code === 201 && jsonData.data) {",
+									"    pm.environment.set(\"userId\", jsonData.data.id);",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "X-API-Key",
+								"value": "{{xApiKey}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "Username",
+									"value": "john_doe",
+									"type": "text"
+								},
+								{
+									"key": "Password",
+									"value": "securepassword123",
+									"type": "text"
+								},
+								{
+									"key": "FullName",
+									"value": "John Doe",
+									"type": "text"
+								},
+								{
+									"key": "ProfileImage",
+									"type": "file",
+									"src": []
+								}
+							]
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/user/create",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"user",
+								"create"
+							]
+						}
+					}
+				},
+				{
+					"name": "Get All Users",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "X-API-Key",
+								"value": "{{xApiKey}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/api/user/all",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"user",
+								"all"
+							]
+						}
+					}
+				},
+				{
+					"name": "Get User By ID",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "X-API-Key",
+								"value": "{{xApiKey}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/api/user/{{userId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"user",
+								"{{userId}}"
+							]
+						}
+					}
+				},
+				{
+					"name": "Update User",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "X-API-Key",
+								"value": "{{xApiKey}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "Username",
+									"value": "john_doe_updated",
+									"type": "text"
+								},
+								{
+									"key": "FullName",
+									"value": "John Doe Updated",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/user/{{userId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"user",
+								"{{userId}}"
+							]
+						}
+					}
+				},
+				{
+					"name": "Delete User",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "X-API-Key",
+								"value": "{{xApiKey}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/api/user/{{userId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"user",
+								"{{userId}}"
+							]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "3. Passenger Module (API Key)",
+			"description": "CRUD operations for Passengers. Protected by X-API-Key.",
+			"item": [
+				{
+					"name": "Create Passenger",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"var jsonData = pm.response.json();",
+									"if (pm.response.code === 201 && jsonData.data) {",
+									"    pm.environment.set(\"passengerId\", jsonData.data);",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "X-API-Key",
+								"value": "{{xApiKey}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "FirstName",
+									"value": "Jane",
+									"type": "text"
+								},
+								{
+									"key": "LastName",
+									"value": "Doe",
+									"type": "text"
+								},
+								{
+									"key": "DateOfBirth",
+									"value": "1995-05-20",
+									"type": "text"
+								},
+								{
+									"key": "Gender",
+									"value": "Female",
+									"type": "text"
+								},
+								{
+									"key": "CountryId",
+									"value": "1",
+									"type": "text"
+								},
+								{
+									"key": "IdfDocTypeId",
+									"value": "1",
+									"type": "text"
+								},
+								{
+									"key": "IdfDocNumber",
+									"value": "P-99887766",
+									"type": "text"
+								},
+								{
+									"key": "IssueDate",
+									"value": "2022-01-01",
+									"type": "text"
+								},
+								{
+									"key": "ExpiryDate",
+									"value": "2032-01-01",
+									"type": "text"
+								},
+								{
+									"key": "FaceImageFile",
+									"type": "file",
+									"src": []
+								}
+							]
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/passenger",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"passenger"
+							]
+						}
+					}
+				},
+				{
+					"name": "Get All Passengers",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "X-API-Key",
+								"value": "{{xApiKey}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/api/passenger",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"passenger"
+							]
+						}
+					}
+				},
+				{
+					"name": "Get Passenger By ID",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "X-API-Key",
+								"value": "{{xApiKey}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/api/passenger/{{passengerId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"passenger",
+								"{{passengerId}}"
+							]
+						}
+					}
+				},
+				{
+					"name": "Update Passenger",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "X-API-Key",
+								"value": "{{xApiKey}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "FirstName",
+									"value": "Jane Updated",
+									"type": "text"
+								},
+								{
+									"key": "LastName",
+									"value": "Doe Updated",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/passenger/{{passengerId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"passenger",
+								"{{passengerId}}"
+							]
+						}
+					}
+				},
+				{
+					"name": "Delete Passenger",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "X-API-Key",
+								"value": "{{xApiKey}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/api/passenger/{{passengerId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"passenger",
+								"{{passengerId}}"
+							]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "4. Utilities",
+			"item": [
+				{
+					"name": "Save Error Log",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"status\": \"Error\",\n    \"error\": \"NullReferenceException\",\n    \"message\": \"Something went wrong\",\n    \"path\": \"/api/test\",\n    \"req_from\": \"Postman\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/ErrorLog/SaveErrorLog",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"ErrorLog",
+								"SaveErrorLog"
+							]
+						}
+					}
+				}
+			]
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "baseUrl",
+			"value": "http://localhost:5000",
+			"type": "string"
+		},
+		{
+			"key": "adminJwtToken",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "xApiKey",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "userId",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "passengerId",
+			"value": "",
+			"type": "string"
+		}
+	]
+}
