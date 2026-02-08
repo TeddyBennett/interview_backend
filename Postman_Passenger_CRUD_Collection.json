@@ -38,7 +38,7 @@
 							"formdata": [
 								{
 									"key": "DocId",
-									"value": "12345",
+									"value": "23334",
 									"type": "text"
 								},
 								{
@@ -195,6 +195,11 @@
 									"key": "Gender",
 									"value": "Female",
 									"type": "text"
+								},
+								{
+									"key": "FaceImageFile",
+									"type": "file",
+									"src": []
 								}
 							]
 						},

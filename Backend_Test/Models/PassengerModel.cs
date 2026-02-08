@@ -23,6 +23,7 @@ namespace Backend_Test.Models
         [Required]
         public string Gender { get; set; }
         public string? FaceImageUrl { get; set; } // Renamed for clarity and MinIO integration
+        public DateTime CreatedAt { get; set; } // Added missing CreatedAt property
         
         // This property will be used for incoming file uploads, not stored in DB
         public IFormFile? FaceImageFile { get; set; } 
@@ -42,6 +43,7 @@ namespace Backend_Test.Models
             public string IdfDocTypeName { get; set; } // To hold joined document type name
             public string IdfDocNumber { get; set; }
             public string? FaceImageUrl { get; set; }
+            public DateTime CreatedAt { get; set; } // Added missing CreatedAt property
         }
     }
 }
