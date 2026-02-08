@@ -55,8 +55,10 @@ builder.Services.AddSwaggerGen(c =>
     }});
 });
 builder.Services.AddScoped<IPassengerRepository, PassengerRepository>();
+builder.Services.AddScoped<IUserRepository, UserRepository>();
 
 builder.Services.AddScoped<PassengerService>();
+builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<MinioService>();
 
 builder.Services.AddScoped<IAdminRepository, AdminRepository>();
