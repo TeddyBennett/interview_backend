@@ -9,4 +9,4 @@ CREATE TABLE Administrators (
 -- Insert a default admin user (Password: 'admin123' - Hashed with BCrypt)
 -- This is a valid BCrypt hash for 'admin123'
 INSERT INTO Administrators (Username, PasswordHash, Role) 
-VALUES ('admin', '$2a$11$Z5n5q1u5h5j5k5l5m5n5o5p5q5r5s5t5u5v5w5x5y5z5a5b5c5d5e', 'Admin');
+VALUES ('admin', '$2a$11$SxMErH4V0GjdvgxR8o/I5eAqsQaps8V9nuxJ4VftFuuPmvGu3C516', 'Admin');

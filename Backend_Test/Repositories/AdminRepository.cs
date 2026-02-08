@@ -22,8 +22,8 @@ namespace Backend_Test.Repositories
         {
             using var connection = new NpgsqlConnection(_gVar.conn);
             const string sql = @"
-                INSERT INTO Administrators (Username, PasswordHash, Role, CreatedAt)
-                VALUES (@Username, @PasswordHash, @Role, @CreatedAt)
+                INSERT INTO Administrators (Username, Password, Role, CreatedAt)
+                VALUES (@Username, @Password, @Role, @CreatedAt)
                 RETURNING Id;";
             return await connection.ExecuteScalarAsync<int>(sql, admin);
         }

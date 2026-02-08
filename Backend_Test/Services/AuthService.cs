@@ -24,7 +24,7 @@ namespace Backend_Test.Services
         public async Task<string> LoginAsync(string username, string password)
         {
             var admin = await _adminRepository.GetByUsernameAsync(username);
-            if (admin == null || !BCrypt.Net.BCrypt.Verify(password, admin.PasswordHash))
+            if (admin == null || !BCrypt.Net.BCrypt.Verify(password, admin.Password))
             {
                 return null;
             }
@@ -40,7 +40,7 @@ namespace Backend_Test.Services
             var admin = new Administrator
             {
                 Username = username,
-                PasswordHash = HashPassword(password),
+                Password = HashPassword(password),
                 Role = "Admin",
                 CreatedAt = DateTime.UtcNow
             };

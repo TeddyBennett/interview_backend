@@ -2,12 +2,13 @@ using Backend_Test.Models;
 using Backend_Test.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Swashbuckle.AspNetCore.Annotations;
 using System.Security.Claims;
 using System.Threading.Tasks;
 
 namespace Backend_Test.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("api/admin")]
     [ApiController]
     public class AdminController : ControllerBase
     {
@@ -21,83 +22,87 @@ namespace Backend_Test.Controllers
         }
 
         [HttpPost("login")]
+        [AllowAnonymous]
+        [SwaggerOperation(Summary = "Authenticates an administrator and returns a JWT.")]
         public async Task<IActionResult> Login([FromBody] LoginRequestModel model)
         {
             var token = await _authService.LoginAsync(model.Username, model.Password);
             if (token == null)
             {
-                return Unauthorized(new { message = "Invalid credentials" });
+                return Unauthorized(new ApiResponse<object> { Success = false, StatusCode = 401, Message = "Invalid credentials." });
             }
-            return Ok(new { token });
+            return Ok(new ApiResponse<object> { Success = true, StatusCode = 200, Data = new { Token = token } });
         }
 
-        [HttpPost("register-initial-admin")]
-        public async Task<IActionResult> RegisterInitial([FromBody] LoginRequestModel model)
-        {
-            try
-            {
-                var admin = await _authService.RegisterAdminAsync(model.Username, model.Password);
-                return Ok(admin);
-            }
-            catch (System.Exception ex)
-            {
-                return BadRequest(new { message = ex.Message });
-            }
-        }
-
-        [Authorize(Roles = "Admin")]
+        [Authorize(Roles = "Admin")] // Ensure only authorized admins can access
         [HttpPost("apikeys")]
+        [SwaggerOperation(Summary = "Creates a new API key for a client. Returns the raw key once.")]
         public async Task<IActionResult> CreateApiKey([FromBody] ApiKeyCreationRequest request)
         {
-            var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier);
-            if (userIdClaim == null || !int.TryParse(userIdClaim.Value, out int adminId))
-            {
-                return Unauthorized();
-            }
-
-            var rawKey = await _apiKeyService.CreateApiKeyAsync(request.ClientName, adminId, request.ExpiresAt);
-
-            return Ok(new
-            {
-                ClientName = request.ClientName,
-                ApiKey = rawKey,
-                Warning = "Copy this key now. You will not be able to see it again."
-            });
+            var createdById = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value);
+            var rawApiKey = await _apiKeyService.CreateApiKeyAsync(request.ClientName, createdById, request.ExpiresAt);
+            return Ok(new ApiResponse<object> { Success = true, StatusCode = 200, Data = new { ApiKey = rawApiKey }, Message = "API Key created successfully. Store this key securely, it will not be shown again." });
         }
 
         [Authorize(Roles = "Admin")]
         [HttpGet("apikeys")]
+        [SwaggerOperation(Summary = "Retrieves a list of all API keys (excluding the hashed key value).")]
         public async Task<IActionResult> GetAllApiKeys()
         {
-            var keys = await _apiKeyService.GetAllApiKeysAsync();
-            return Ok(keys);
+            var apiKeys = await _apiKeyService.GetAllApiKeysAsync();
+            return Ok(new ApiResponse<IEnumerable<ApiKey>> { Success = true, StatusCode = 200, Data = apiKeys });
         }
 
         [Authorize(Roles = "Admin")]
         [HttpGet("apikeys/{id}")]
-        public async Task<IActionResult> GetApiKey(int id)
+        [SwaggerOperation(Summary = "Retrieves details for a single API key.")]
+        public async Task<IActionResult> GetApiKeyById(int id)
         {
-            var key = await _apiKeyService.GetApiKeyByIdAsync(id);
-            if (key == null) return NotFound();
-            return Ok(key);
+            var apiKey = await _apiKeyService.GetApiKeyByIdAsync(id);
+            if (apiKey == null)
+            {
+                return NotFound(new ApiResponse<object> { Success = false, StatusCode = 404, Message = "API Key not found." });
+            }
+            return Ok(new ApiResponse<ApiKey> { Success = true, StatusCode = 200, Data = apiKey });
         }
 
         [Authorize(Roles = "Admin")]
-        [HttpPatch("apikeys/{id}/toggle")]
-        public async Task<IActionResult> ToggleApiKey(int id, [FromQuery] bool isEnabled)
+        [HttpPatch("apikeys/{id}/disable")]
+        [SwaggerOperation(Summary = "Disables an API key, revoking its access.")]
+        public async Task<IActionResult> DisableApiKey(int id)
         {
-            var success = await _apiKeyService.ToggleApiKeyStatusAsync(id, isEnabled);
-            if (!success) return NotFound();
-            return NoContent();
+            var success = await _apiKeyService.ToggleApiKeyStatusAsync(id, false);
+            if (!success)
+            {
+                return NotFound(new ApiResponse<object> { Success = false, StatusCode = 404, Message = "API Key not found or unable to update status." });
+            }
+            return Ok(new ApiResponse<object> { Success = true, StatusCode = 200, Message = "API Key disabled successfully." });
+        }
+
+        [Authorize(Roles = "Admin")]
+        [HttpPatch("apikeys/{id}/enable")]
+        [SwaggerOperation(Summary = "Re-enables a disabled API key.")]
+        public async Task<IActionResult> EnableApiKey(int id)
+        {
+            var success = await _apiKeyService.ToggleApiKeyStatusAsync(id, true);
+            if (!success)
+            {
+                return NotFound(new ApiResponse<object> { Success = false, StatusCode = 404, Message = "API Key not found or unable to update status." });
+            }
+            return Ok(new ApiResponse<object> { Success = true, StatusCode = 200, Message = "API Key enabled successfully." });
         }
 
         [Authorize(Roles = "Admin")]
         [HttpDelete("apikeys/{id}")]
+        [SwaggerOperation(Summary = "Permanently deletes an API key.")]
         public async Task<IActionResult> DeleteApiKey(int id)
         {
             var success = await _apiKeyService.DeleteApiKeyAsync(id);
-            if (!success) return NotFound();
-            return NoContent();
+            if (!success)
+            {
+                return NotFound(new ApiResponse<object> { Success = false, StatusCode = 404, Message = "API Key not found or unable to delete." });
+            }
+            return Ok(new ApiResponse<object> { Success = true, StatusCode = 200, Message = "API Key deleted successfully." });
         }
     }
 }
