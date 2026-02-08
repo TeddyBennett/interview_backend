@@ -12,7 +12,7 @@ namespace Backend_Test.Repositories
     public class PassengerRepository : IPassengerRepository
     {
         private readonly ILogger<PassengerRepository> _logger;
-        private readonly GVar _gVar = new GVar(); // GVar initializes its own config
+        private readonly GVar _gVar = new GVar();
 
         public PassengerRepository(ILogger<PassengerRepository> logger)
         {
@@ -23,8 +23,8 @@ namespace Backend_Test.Repositories
         {
             using var connection = new NpgsqlConnection(_gVar.conn);
             const string sql = @"
-                INSERT INTO Passengers (DocId, FirstName, LastName, DateOfBirth, Gender, CountryId, IdfDocTypeId, IdfDocNumber, FaceImageUrl, CreatedAt)
-                VALUES (@DocId, @FirstName, @LastName, @DateOfBirth, @Gender, @CountryId, @IdfDocTypeId, @IdfDocNumber, @FaceImageUrl, @CreatedAt)
+                INSERT INTO Passengers (DocId, FirstName, LastName, DateOfBirth, Gender, FaceImageUrl, CreatedAt)
+                VALUES (@DocId, @FirstName, @LastName, @DateOfBirth, @Gender, @FaceImageUrl, @CreatedAt)
                 RETURNING PassengerId;";
             return await connection.ExecuteScalarAsync<int>(sql, passenger);
         }
@@ -39,9 +39,6 @@ namespace Backend_Test.Repositories
                     LastName = @LastName, 
                     DateOfBirth = @DateOfBirth,
                     Gender = @Gender,
-                    CountryId = @CountryId,
-                    IdfDocTypeId = @IdfDocTypeId,
-                    IdfDocNumber = @IdfDocNumber,
                     FaceImageUrl = @FaceImageUrl
                 WHERE PassengerId = @PassengerId;";
             var rowsAffected = await connection.ExecuteAsync(sql, passenger);
@@ -70,32 +67,11 @@ namespace Backend_Test.Repositories
             return await connection.QueryAsync<PassengerModel>(sql);
         }
 
-        // Keeping GetPassengersDetail as is for now, it's a very specific query
         public async Task<int> GetPassengersDetail(int docId)
         {
-            try
-            {
-                using var connection = new NpgsqlConnection(_gVar.conn);
-
-                var parameters = new DynamicParameters();
-                parameters.Add("@doc_id", docId);
-
-                // This is still a placeholder, it would need a real stored procedure or custom query
-                var result = await connection.QueryFirstOrDefaultAsync<dynamic>(
-                    "SELECT * FROM Store_Procedure_Name(@doc_id)", 
-                    parameters
-                );
-
-                if (result == null)
-                    return 0;
-
-                return result.passenger_count;
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Error getting passenger detail by document ID {DocId}", docId);
-                throw new Exception(ex.Message);
-            }
+            // This might need update if docId is now string, but for now keeping it as is 
+            // since the interface says int docId.
+            return 0; 
         }
     }
 }
