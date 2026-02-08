@@ -3,94 +3,86 @@ using Backend_Test.Models;
 using Backend_Test.Repositories.Interfaces;
 using Dapper;
 using Npgsql;
-using System.Data;
-using static Backend_Test.Models.PassengerModel;
+using System;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace Backend_Test.Repositories
 {
     public class PassengerRepository : IPassengerRepository
     {
         private readonly ILogger<PassengerRepository> _logger;
-        private GVar oGvar = new GVar();
+        private readonly GVar _gVar = new GVar(); // GVar initializes its own config
 
-        public PassengerRepository(IConfiguration configuration, ILogger<PassengerRepository> logger)
+        public PassengerRepository(ILogger<PassengerRepository> logger)
         {
             _logger = logger;
         }
 
-        public async Task<int> AddPassenger(PassengerModel passenger)
+        public async Task<int> CreateAsync(PassengerModel passenger)
         {
-            return 0;
+            using var connection = new NpgsqlConnection(_gVar.conn);
+            const string sql = @"
+                INSERT INTO Passengers (DocId, FirstName, LastName, DateOfBirth, Gender, CountryId, IdfDocTypeId, IdfDocNumber, FaceImageUrl, CreatedAt)
+                VALUES (@DocId, @FirstName, @LastName, @DateOfBirth, @Gender, @CountryId, @IdfDocTypeId, @IdfDocNumber, @FaceImageUrl, @CreatedAt)
+                RETURNING PassengerId;";
+            return await connection.ExecuteScalarAsync<int>(sql, passenger);
         }
 
-        public async Task<bool> UpdatePassenger(PassengerModel passenger, int passengerId)
+        public async Task<bool> UpdateAsync(PassengerModel passenger)
         {
-            return true;
+            using var connection = new NpgsqlConnection(_gVar.conn);
+            const string sql = @"
+                UPDATE Passengers 
+                SET DocId = @DocId,
+                    FirstName = @FirstName, 
+                    LastName = @LastName, 
+                    DateOfBirth = @DateOfBirth,
+                    Gender = @Gender,
+                    CountryId = @CountryId,
+                    IdfDocTypeId = @IdfDocTypeId,
+                    IdfDocNumber = @IdfDocNumber,
+                    FaceImageUrl = @FaceImageUrl
+                WHERE PassengerId = @PassengerId;";
+            var rowsAffected = await connection.ExecuteAsync(sql, passenger);
+            return rowsAffected > 0;
         }
 
-        public async Task<bool> DeletePassenger(int passengerId)
+        public async Task<bool> DeleteAsync(int passengerId)
         {
-            try
-            {
-                using var connection = new NpgsqlConnection(oGvar.conn);
-
-                var parameters = new DynamicParameters();
-
-                // Note: PostgreSQL calls procedures/functions differently. 
-                // This will likely need updating based on your actual procedure names.
-                var result = await connection.QueryFirstOrDefaultAsync<dynamic>(
-                    "CALL Store_Procedure_Name(@params)", // Placeholder syntax for PG
-                    parameters
-                );
-
-                if (result == null || result.Status != "Success")
-                {
-                    throw new Exception(result?.Message ?? "Failed to delete passenger");
-                }
-
-                return true;
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Error deleting passenger");
-                throw new Exception(ex.Message);
-            }
+            using var connection = new NpgsqlConnection(_gVar.conn);
+            const string sql = "DELETE FROM Passengers WHERE PassengerId = @PassengerId;";
+            var rowsAffected = await connection.ExecuteAsync(sql, new { PassengerId = passengerId });
+            return rowsAffected > 0;
         }
 
-        public async Task<PassengerModel> GetPassengerById(int passengerId)
+        public async Task<PassengerModel> GetByIdAsync(int passengerId)
         {
-            try
-            {
-                using var connection = new NpgsqlConnection(oGvar.conn);
-
-                var parameters = new DynamicParameters();
-
-                var result = await connection.QueryFirstOrDefaultAsync<PassengerModel>(
-                    "SELECT * FROM Store_Procedure_Name(@params)", // Placeholder for PG function
-                    parameters
-                );
-
-                return result;
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Error getting passenger by ID {PassengerId}", passengerId);
-                throw new Exception(ex.Message);
-            }
+            using var connection = new NpgsqlConnection(_gVar.conn);
+            const string sql = "SELECT * FROM Passengers WHERE PassengerId = @PassengerId;";
+            return await connection.QuerySingleOrDefaultAsync<PassengerModel>(sql, new { PassengerId = passengerId });
+        }
+        
+        public async Task<IEnumerable<PassengerModel>> GetAllAsync()
+        {
+            using var connection = new NpgsqlConnection(_gVar.conn);
+            const string sql = "SELECT * FROM Passengers ORDER BY PassengerId DESC;";
+            return await connection.QueryAsync<PassengerModel>(sql);
         }
 
-
+        // Keeping GetPassengersDetail as is for now, it's a very specific query
         public async Task<int> GetPassengersDetail(int docId)
         {
             try
             {
-                using var connection = new NpgsqlConnection(oGvar.conn);
+                using var connection = new NpgsqlConnection(_gVar.conn);
 
                 var parameters = new DynamicParameters();
                 parameters.Add("@doc_id", docId);
 
+                // This is still a placeholder, it would need a real stored procedure or custom query
                 var result = await connection.QueryFirstOrDefaultAsync<dynamic>(
-                    "SELECT * FROM Store_Procedure_Name(@doc_id)",
+                    "SELECT * FROM Store_Procedure_Name(@doc_id)", 
                     parameters
                 );
 

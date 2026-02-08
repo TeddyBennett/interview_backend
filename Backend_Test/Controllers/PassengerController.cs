@@ -1,15 +1,16 @@
-﻿using Backend_Test.Attributes;
+using Backend_Test.Attributes;
 using Backend_Test.Models;
 using Backend_Test.Services;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Swashbuckle.AspNetCore.Annotations;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace Backend_Test.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [ApiKeyAuthorize] // Applying API Key authorization
     public class PassengerController : ControllerBase
     {
         private readonly PassengerService _passengerService;
@@ -19,13 +20,11 @@ namespace Backend_Test.Controllers
             _passengerService = passengerService;
         }
 
-        [Authorize]
-        [HttpPost("add")]
-        [SwaggerOperation(Summary = "Add Passenger Info")]
-        [HideFields("passenger_id", "face_image", "face_image_name")]
-        public async Task<IActionResult> AddPassenger([FromForm] PassengerModel passenger)
+        [HttpPost]
+        [SwaggerOperation(Summary = "Create Passenger Info")]
+        public async Task<IActionResult> CreatePassenger([FromForm] PassengerModel passenger)
         {
-            var result = await _passengerService.AddPassenger(passenger);
+            var result = await _passengerService.CreatePassengerAsync(passenger);
 
             if (result.Success)
                 return StatusCode(result.StatusCode, result);
@@ -33,14 +32,12 @@ namespace Backend_Test.Controllers
             return BadRequest(result);
         }
 
-
-        [Authorize]
-        [HttpPost("update")]
+        [HttpPut("{passengerId}")]
         [SwaggerOperation(Summary = "Update Passenger Info")]
-        [HideFields("passenger_id", "face_image", "face_image_name")]
-        public async Task<IActionResult> UpdatePassenger([FromQuery] int passengerId, [FromForm] PassengerModel passenger)
+        public async Task<IActionResult> UpdatePassenger(int passengerId, [FromForm] PassengerModel passenger)
         {
-            var result = await _passengerService.UpdatePassenger(passenger, passengerId);
+            passenger.PassengerId = passengerId; // Set the ID from route to model
+            var result = await _passengerService.UpdatePassengerAsync(passenger);
 
             if (result.Success)
                 return Ok(result);
@@ -48,12 +45,11 @@ namespace Backend_Test.Controllers
             return BadRequest(result);
         }
 
-        [Authorize]
-        [HttpPost("delete/{passengerId}")]
-        [SwaggerOperation(Summary = "Delete Passenger By Passenger Id")]
+        [HttpDelete("{passengerId}")]
+        [SwaggerOperation(Summary = "Delete Passenger By ID")]
         public async Task<IActionResult> DeletePassenger(int passengerId)
         {
-            var result = await _passengerService.DeletePassenger(passengerId);
+            var result = await _passengerService.DeletePassengerAsync(passengerId);
 
             if (result.Success)
                 return Ok(result);
@@ -61,17 +57,28 @@ namespace Backend_Test.Controllers
             return BadRequest(result);
         }
 
-        [Authorize]
         [HttpGet("{passengerId}")]
-        [SwaggerOperation(Summary = "Get Passenger By Passenger Id")]
+        [SwaggerOperation(Summary = "Get Passenger By ID")]
         public async Task<IActionResult> GetPassengerById(int passengerId)
         {
-            var result = await _passengerService.GetPassengerById(passengerId);
+            var result = await _passengerService.GetPassengerByIdAsync(passengerId);
 
             if (result.Success)
                 return Ok(result);
 
             return NotFound(result);
+        }
+
+        [HttpGet]
+        [SwaggerOperation(Summary = "Get All Passengers")]
+        public async Task<IActionResult> GetAllPassengers()
+        {
+            var result = await _passengerService.GetAllPassengersAsync();
+
+            if (result.Success)
+                return Ok(result);
+
+            return BadRequest(result);
         }
     }
 }

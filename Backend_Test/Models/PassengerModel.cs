@@ -1,51 +1,47 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using System;
+using System.ComponentModel.DataAnnotations;
+using Microsoft.AspNetCore.Http; // Required for IFormFile
 
 namespace Backend_Test.Models
 {
     public class PassengerModel
     {
-        public int passenger_id { get; set; }
+        public int PassengerId { get; set; }
         [Required]
-        public int doc_id { get; set; }
+        public int DocId { get; set; }
         [Required]
-        public string first_name { get; set; }
+        public string FirstName { get; set; }
         [Required]
-        public string last_name { get; set; }
-        public string date_of_birth { get; set; }
+        public string LastName { get; set; }
+        public DateTime? DateOfBirth { get; set; } // Changed to nullable DateTime
         [Required]
-        public int country { get; set; }
+        public int CountryId { get; set; } // Foreign key to Countries table
         [Required]
-        public int idf_doc_type { get; set; }
+        public int IdfDocTypeId { get; set; } // Foreign key to DocumentTypes table
         [Required]
-        public string idf_doc_number { get; set; }
+        public string IdfDocNumber { get; set; }
         [Required]
-        public string gender { get; set; }
-        public string? face_image { get; set; }
-        public string? face_image_name { get; set; }
-        public IFormFile? File { get; set; }
+        public string Gender { get; set; }
+        public string? FaceImageUrl { get; set; } // Renamed for clarity and MinIO integration
+        
+        // This property will be used for incoming file uploads, not stored in DB
+        public IFormFile? FaceImageFile { get; set; } 
 
 
-
-        public class PassengerDetail
+        public class PassengerDetail // Assuming this is for richer representation, might include joined data
         {
-            public int passenger_id { get; set; }
-            [Required]
-            public int doc_id { get; set; }
-            [Required]
-            public string first_name { get; set; }
-            [Required]
-            public string last_name { get; set; }
-            public string date_of_birth { get; set; }
-            [Required]
-            public string country { get; set; }
-            [Required]
-            public string idf_doc_type { get; set; }
-            [Required]
-            public string idf_doc_number { get; set; }
-            [Required]
-            public string gender { get; set; }
-            public string? face_image { get; set; }
-            public string? face_image_name { get; set; }
+            public int PassengerId { get; set; }
+            public int DocId { get; set; }
+            public string FirstName { get; set; }
+            public string LastName { get; set; }
+            public DateTime? DateOfBirth { get; set; }
+            public string Gender { get; set; }
+            public int CountryId { get; set; }
+            public string CountryName { get; set; } // To hold joined country name
+            public int IdfDocTypeId { get; set; }
+            public string IdfDocTypeName { get; set; } // To hold joined document type name
+            public string IdfDocNumber { get; set; }
+            public string? FaceImageUrl { get; set; }
         }
     }
 }
