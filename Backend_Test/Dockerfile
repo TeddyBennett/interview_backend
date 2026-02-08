@@ -7,16 +7,16 @@ EXPOSE 443
 
 FROM mcr.microsoft.com/dotnet/sdk:7.0 AS build
 WORKDIR /src
-COPY ["API_Immigration_DryPort/API_Immigration_DryPort.csproj", "API_Immigration_DryPort/"]
-RUN dotnet restore "API_Immigration_DryPort/API_Immigration_DryPort.csproj"
+COPY ["Backend_Test/Backend_Test.csproj", "Backend_Test/"]
+RUN dotnet restore "Backend_Test/Backend_Test.csproj"
 COPY . .
-WORKDIR "/src/API_Immigration_DryPort"
-RUN dotnet build "API_Immigration_DryPort.csproj" -c Release -o /app/build
+WORKDIR "/src/Backend_Test"
+RUN dotnet build "Backend_Test.csproj" -c Release -o /app/build
 
 FROM build AS publish
-RUN dotnet publish "API_Immigration_DryPort.csproj" -c Release -o /app/publish /p:UseAppHost=false
+RUN dotnet publish "Backend_Test.csproj" -c Release -o /app/publish /p:UseAppHost=false
 
 FROM base AS final
 WORKDIR /app
 COPY --from=publish /app/publish .
-ENTRYPOINT ["dotnet", "API_Immigration_DryPort.dll"]
+ENTRYPOINT ["dotnet", "Backend_Test.dll"]

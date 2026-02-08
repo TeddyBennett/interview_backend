@@ -1,0 +1,52 @@
+version: '3.8'
+
+services:
+  backend:
+    build:
+      context: .
+      dockerfile: Backend_Test/Dockerfile
+    ports:
+      - "5000:80"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ENV=Dev
+      - ConnectionStrings__con_dev=Host=db;Port=5432;Database=backend_test_db;Username=postgres;Password=yourpassword;
+      - Minio__Endpoint=minio:9000
+      - Minio__Username=minioadmin
+      - Minio__Password=minioadmin
+      - Minio__BucketName=user-profiles
+      - Minio__ReturnPath=http://localhost:9000
+      - Jwt__Key=ThisIsASuperSecretKeyForTestingPurposes123!
+      - Jwt__Issuer=BackendTest
+      - Jwt__Audience=BackendTestUsers
+    depends_on:
+      - db
+      - minio
+
+  db:
+    image: postgres:15-alpine
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: yourpassword
+      POSTGRES_DB: backend_test_db
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./Backend_Test/SqlScripts/:/docker-entrypoint-initdb.d/
+
+  minio:
+    image: minio/minio
+    command: server /data --console-address ":9001"
+    environment:
+      MINIO_ROOT_USER: minioadmin
+      MINIO_ROOT_PASSWORD: minioadmin
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    volumes:
+      - minio_data:/data
+
+volumes:
+  postgres_data:
+  minio_data:

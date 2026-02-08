@@ -1,9 +1,9 @@
-﻿using AspStudio.Common;
+using AspStudio.Common;
 using Backend_Test.Models;
 using Backend_Test.Repositories.Interfaces;
 using Dapper;
+using Npgsql;
 using System.Data;
-using System.Data.SqlClient;
 
 namespace Backend_Test.Repositories
 {
@@ -13,7 +13,7 @@ namespace Backend_Test.Repositories
 
         public async Task<bool> AddLogData(ErrorLogModel data)
         {
-            using var connection = new SqlConnection(oGvar.conn);
+            using var connection = new NpgsqlConnection(oGvar.conn);
 
             var parameters = new DynamicParameters();
             parameters.Add("@action", "INSERT");
@@ -24,10 +24,10 @@ namespace Backend_Test.Repositories
             parameters.Add("@path", data.path);
             parameters.Add("@req_from", data.req_from);
 
+            // PostgreSQL stored procedure call
             var result = await connection.QueryFirstOrDefaultAsync<dynamic>(
-                "SP_TB_ERR_LOG_DATA",
-                parameters,
-                commandType: CommandType.StoredProcedure
+                "CALL SP_TB_ERR_LOG_DATA(@action, @timestamp, @status, @error, @message, @path, @req_from)",
+                parameters
             );
 
             return result != null && result.Status == "Success";

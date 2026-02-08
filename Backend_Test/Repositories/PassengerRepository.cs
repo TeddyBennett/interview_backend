@@ -1,9 +1,9 @@
-﻿using AspStudio.Common;
+using AspStudio.Common;
 using Backend_Test.Models;
 using Backend_Test.Repositories.Interfaces;
 using Dapper;
+using Npgsql;
 using System.Data;
-using System.Data.SqlClient;
 using static Backend_Test.Models.PassengerModel;
 
 namespace Backend_Test.Repositories
@@ -32,14 +32,15 @@ namespace Backend_Test.Repositories
         {
             try
             {
-                using var connection = new SqlConnection(oGvar.conn);
+                using var connection = new NpgsqlConnection(oGvar.conn);
 
                 var parameters = new DynamicParameters();
 
+                // Note: PostgreSQL calls procedures/functions differently. 
+                // This will likely need updating based on your actual procedure names.
                 var result = await connection.QueryFirstOrDefaultAsync<dynamic>(
-                    "Store_Procedure_Name",
-                    parameters,
-                    commandType: CommandType.StoredProcedure
+                    "CALL Store_Procedure_Name(@params)", // Placeholder syntax for PG
+                    parameters
                 );
 
                 if (result == null || result.Status != "Success")
@@ -60,14 +61,13 @@ namespace Backend_Test.Repositories
         {
             try
             {
-                using var connection = new SqlConnection(oGvar.conn);
+                using var connection = new NpgsqlConnection(oGvar.conn);
 
                 var parameters = new DynamicParameters();
 
                 var result = await connection.QueryFirstOrDefaultAsync<PassengerModel>(
-                    "Store_Procedure_Name",
-                    parameters,
-                    commandType: CommandType.StoredProcedure
+                    "SELECT * FROM Store_Procedure_Name(@params)", // Placeholder for PG function
+                    parameters
                 );
 
                 return result;
@@ -84,15 +84,14 @@ namespace Backend_Test.Repositories
         {
             try
             {
-                using var connection = new SqlConnection(oGvar.conn);
+                using var connection = new NpgsqlConnection(oGvar.conn);
 
                 var parameters = new DynamicParameters();
                 parameters.Add("@doc_id", docId);
 
                 var result = await connection.QueryFirstOrDefaultAsync<dynamic>(
-                    "Store_Procedure_Name",
-                    parameters,
-                    commandType: CommandType.StoredProcedure
+                    "SELECT * FROM Store_Procedure_Name(@doc_id)",
+                    parameters
                 );
 
                 if (result == null)

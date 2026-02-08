@@ -1,0 +1,497 @@
+{
+	"info": {
+		"_postman_id": "b3e34608-271d-4860-8488-87428131584c",
+		"name": "Backend_Test API",
+		"description": "Collection for the Backend_Test API including Admin API Key management and Passenger/ErrorLog operations.",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Admin (Auth & Keys)",
+			"item": [
+				{
+					"name": "1. Register Initial Admin",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{
+  "username": "admin",
+  "password": "password123"
+}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/api/admin/register-initial-admin",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"admin",
+								"register-initial-admin"
+							]
+						},
+						"description": "Run this ONCE to create the first admin user."
+					},
+					"response": []
+				},
+				{
+					"name": "2. Admin Login",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"var jsonData = pm.response.json();",
+									"if (jsonData.token) {",
+									"    pm.collectionVariables.set("admin_token", jsonData.token);",
+									"    console.log("Admin Token set successfully");",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{
+  "username": "admin",
+  "password": "password123"
+}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/api/admin/login",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"admin",
+								"login"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "3. Create API Key",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"var jsonData = pm.response.json();",
+									"if (jsonData.ApiKey) {",
+									"    pm.collectionVariables.set("client_api_key", jsonData.ApiKey);",
+									"    console.log("Client API Key set successfully");",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{
+  "clientName": "Mobile App v1",
+  "expiresAt": null
+}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/api/admin/apikeys",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"admin",
+								"apikeys"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "4. Get All Keys",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/admin/apikeys",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"admin",
+								"apikeys"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "5. Get Key Details",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/admin/apikeys/1",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"admin",
+								"apikeys",
+								"1"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "6. Toggle Key Status",
+					"request": {
+						"method": "PATCH",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/admin/apikeys/1/toggle?isEnabled=false",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"admin",
+								"apikeys",
+								"1",
+								"toggle"
+							],
+							"query": [
+								{
+									"key": "isEnabled",
+									"value": "false"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "7. Delete Key",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/admin/apikeys/1",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"admin",
+								"apikeys",
+								"1"
+							]
+						}
+					},
+					"response": []
+				}
+			],
+			"auth": {
+				"type": "bearer",
+				"bearer": [
+					{
+						"key": "token",
+						"value": "{{admin_token}}",
+						"type": "string"
+					}
+				]
+			},
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"type": "text/javascript",
+						"exec": [
+							""
+						]
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"type": "text/javascript",
+						"exec": [
+							""
+						]
+					}
+				}
+			]
+		},
+		{
+			"name": "Passenger (Client)",
+			"item": [
+				{
+					"name": "Add Passenger",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "first_name",
+									"value": "John",
+									"type": "text"
+								},
+								{
+									"key": "last_name",
+									"value": "Doe",
+									"type": "text"
+								},
+								{
+									"key": "date_of_birth",
+									"value": "1990-01-01",
+									"type": "text"
+								},
+								{
+									"key": "country",
+									"value": "US",
+									"type": "text"
+								},
+								{
+									"key": "idf_doc_type",
+									"value": "Passport",
+									"type": "text"
+								},
+								{
+									"key": "idf_doc_number",
+									"value": "A12345678",
+									"type": "text"
+								},
+								{
+									"key": "gender",
+									"value": "Male",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{base_url}}/api/Passenger/add",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"Passenger",
+								"add"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update Passenger",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "first_name",
+									"value": "John Updated",
+									"type": "text"
+								},
+								{
+									"key": "last_name",
+									"value": "Doe",
+									"type": "text"
+								},
+								{
+									"key": "date_of_birth",
+									"value": "1990-01-01",
+									"type": "text"
+								},
+								{
+									"key": "country",
+									"value": "US",
+									"type": "text"
+								},
+								{
+									"key": "idf_doc_type",
+									"value": "Passport",
+									"type": "text"
+								},
+								{
+									"key": "idf_doc_number",
+									"value": "A12345678",
+									"type": "text"
+								},
+								{
+									"key": "gender",
+									"value": "Male",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{base_url}}/api/Passenger/update?passengerId=1",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"Passenger",
+								"update"
+							],
+							"query": [
+								{
+									"key": "passengerId",
+									"value": "1"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Passenger",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/Passenger/1",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"Passenger",
+								"1"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete Passenger",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/Passenger/delete/1",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"Passenger",
+								"delete",
+								"1"
+							]
+						}
+					},
+					"response": []
+				}
+			],
+			"auth": {
+				"type": "noauth"
+			},
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"type": "text/javascript",
+						"exec": [
+							"// Add API Key header to all requests in this folder",
+							"pm.request.headers.add({",
+							"    key: "X-API-Key",",
+							"    value: pm.collectionVariables.get("client_api_key")",
+							"});"
+						]
+					}
+				}
+			]
+		},
+		{
+			"name": "ErrorLog",
+			"item": [
+				{
+					"name": "Save Error Log",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{
+  "status": "500",
+  "error": "Internal Server Error",
+  "message": "Something went wrong",
+  "path": "/api/test",
+  "req_from": "Client App"
+}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/api/ErrorLog/SaveErrorLog",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"ErrorLog",
+								"SaveErrorLog"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		}
+	],
+	"variable": [
+		{
+			"key": "base_url",
+			"value": "http://localhost:5000",
+			"type": "string"
+		},
+		{
+			"key": "admin_token",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "client_api_key",
+			"value": "",
+			"type": "string"
+		}
+	]
+}
