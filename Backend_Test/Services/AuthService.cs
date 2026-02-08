@@ -13,11 +13,13 @@ namespace Backend_Test.Services
     public class AuthService : IAuthService
     {
         private readonly IAdminRepository _adminRepository;
+        private readonly IUserRepository _userRepository; // Injecting User Repository
         private readonly IConfiguration _configuration;
 
-        public AuthService(IAdminRepository adminRepository, IConfiguration configuration)
+        public AuthService(IAdminRepository adminRepository, IUserRepository userRepository, IConfiguration configuration)
         {
             _adminRepository = adminRepository;
+            _userRepository = userRepository;
             _configuration = configuration;
         }
 
@@ -29,7 +31,18 @@ namespace Backend_Test.Services
                 return null;
             }
 
-            return GenerateJwtToken(admin);
+            return GenerateJwtToken(admin.Id.ToString(), admin.Username, admin.Role);
+        }
+
+        public async Task<string> UserLoginAsync(string username, string password)
+        {
+            var user = await _userRepository.GetByUsernameAsync(username);
+            if (user == null || !BCrypt.Net.BCrypt.Verify(password, user.Password))
+            {
+                return null;
+            }
+
+            return GenerateJwtToken(user.Id, user.Username, user.Role);
         }
 
         public async Task<Administrator> RegisterAdminAsync(string username, string password)
@@ -54,7 +67,7 @@ namespace Backend_Test.Services
             return BCrypt.Net.BCrypt.HashPassword(password);
         }
 
-        private string GenerateJwtToken(Administrator admin)
+        private string GenerateJwtToken(string id, string username, string role)
         {
             var jwtSettings = _configuration.GetSection("Jwt");
             var key = Encoding.ASCII.GetBytes(jwtSettings["Key"]);
@@ -64,9 +77,9 @@ namespace Backend_Test.Services
             {
                 Subject = new ClaimsIdentity(new[]
                 {
-                    new Claim(ClaimTypes.NameIdentifier, admin.Id.ToString()),
-                    new Claim(ClaimTypes.Name, admin.Username),
-                    new Claim(ClaimTypes.Role, admin.Role)
+                    new Claim(ClaimTypes.NameIdentifier, id),
+                    new Claim(ClaimTypes.Name, username),
+                    new Claim(ClaimTypes.Role, role)
                 }),
                 Expires = DateTime.UtcNow.AddHours(4),
                 SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature),

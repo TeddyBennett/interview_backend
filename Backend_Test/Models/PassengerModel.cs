@@ -16,8 +16,9 @@ namespace Backend_Test.Models
         [Required]
         public string Gender { get; set; }
         public string? FaceImageUrl { get; set; }
+        public string? CreatedByUserId { get; set; } // Linked to system user
         public DateTime CreatedAt { get; set; }
-        
+
         // This property will be used for incoming file uploads
         public IFormFile? FaceImageFile { get; set; } 
 
@@ -37,6 +38,7 @@ namespace Backend_Test.Models
             public DateTime? DateOfBirth { get; set; }
             public string Gender { get; set; }
             public string? FaceImageUrl { get; set; }
+            public string CreatedByUserId { get; set; }
             public DateTime CreatedAt { get; set; }
             
             // Document details from join

@@ -27,7 +27,7 @@ namespace Backend_Test.Services
             _minioService = minioService;
         }
 
-        public async Task<ApiResponse<int>> CreatePassengerAsync(PassengerModel passenger)
+        public async Task<ApiResponse<int>> CreatePassengerAsync(PassengerModel passenger, string userId)
         {
             try
             {
@@ -56,6 +56,7 @@ namespace Backend_Test.Services
                     faceImageUrl = await _minioService.UploadFileAsync(passenger.FaceImageFile, "passengers");
                 }
                 passenger.FaceImageUrl = faceImageUrl;
+                passenger.CreatedByUserId = userId; // Set from logged-in user
                 passenger.CreatedAt = DateTime.UtcNow;
 
                 // 3. Create Passenger
@@ -82,11 +83,16 @@ namespace Backend_Test.Services
                 if (existingPassenger == null)
                     throw new NotFoundException($"Passenger with ID {passenger.PassengerId} not found");
 
-                // If DocId is provided, we use it, otherwise we keep existing
-                if (string.IsNullOrEmpty(passenger.DocId))
-                {
-                    passenger.DocId = existingPassenger.DocId;
-                }
+                // Fill in missing required fields from existing data if not provided in the request
+                passenger.DocId = string.IsNullOrEmpty(passenger.DocId) ? existingPassenger.DocId : passenger.DocId;
+                passenger.FirstName = string.IsNullOrEmpty(passenger.FirstName) ? existingPassenger.FirstName : passenger.FirstName;
+                passenger.LastName = string.IsNullOrEmpty(passenger.LastName) ? existingPassenger.LastName : passenger.LastName;
+                passenger.Gender = string.IsNullOrEmpty(passenger.Gender) ? existingPassenger.Gender : passenger.Gender;
+                passenger.CreatedByUserId = string.IsNullOrEmpty(passenger.CreatedByUserId) ? existingPassenger.CreatedByUserId : passenger.CreatedByUserId;
+                
+                // Preserve dates if they are null in the update request
+                passenger.DateOfBirth ??= existingPassenger.DateOfBirth;
+                passenger.CreatedAt = existingPassenger.CreatedAt;
 
                 if (passenger.FaceImageFile != null)
                 {

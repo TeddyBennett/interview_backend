@@ -1,6 +1,7 @@
 using Backend_Test.Attributes;
 using Backend_Test.Models;
 using Backend_Test.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Swashbuckle.AspNetCore.Annotations;
 using System.Collections.Generic;
@@ -10,7 +11,8 @@ namespace Backend_Test.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    [ApiKeyAuthorize] // Applying API Key authorization
+    [ApiKeyAuthorize] // Level 1: App Validation
+    [Authorize]       // Level 2: User Validation (Requires JWT)
     public class PassengerController : ControllerBase
     {
         private readonly PassengerService _passengerService;
@@ -24,7 +26,10 @@ namespace Backend_Test.Controllers
         [SwaggerOperation(Summary = "Create Passenger Info")]
         public async Task<IActionResult> CreatePassenger([FromForm] PassengerModel passenger)
         {
-            var result = await _passengerService.CreatePassengerAsync(passenger);
+            var userId = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+            if (string.IsNullOrEmpty(userId)) return Unauthorized();
+
+            var result = await _passengerService.CreatePassengerAsync(passenger, userId);
 
             if (result.Success)
                 return StatusCode(result.StatusCode, result);

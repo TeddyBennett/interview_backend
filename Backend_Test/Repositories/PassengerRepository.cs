@@ -23,8 +23,8 @@ namespace Backend_Test.Repositories
         {
             using var connection = new NpgsqlConnection(_gVar.conn);
             const string sql = @"
-                INSERT INTO Passengers (DocId, FirstName, LastName, DateOfBirth, Gender, FaceImageUrl, CreatedAt)
-                VALUES (@DocId, @FirstName, @LastName, @DateOfBirth, @Gender, @FaceImageUrl, @CreatedAt)
+                INSERT INTO Passengers (DocId, FirstName, LastName, DateOfBirth, Gender, FaceImageUrl, CreatedByUserId, CreatedAt)
+                VALUES (@DocId, @FirstName, @LastName, @DateOfBirth, @Gender, @FaceImageUrl, @CreatedByUserId, @CreatedAt)
                 RETURNING PassengerId;";
             return await connection.ExecuteScalarAsync<int>(sql, passenger);
         }
@@ -39,7 +39,8 @@ namespace Backend_Test.Repositories
                     LastName = @LastName, 
                     DateOfBirth = @DateOfBirth,
                     Gender = @Gender,
-                    FaceImageUrl = @FaceImageUrl
+                    FaceImageUrl = @FaceImageUrl,
+                    CreatedByUserId = @CreatedByUserId
                 WHERE PassengerId = @PassengerId;";
             var rowsAffected = await connection.ExecuteAsync(sql, passenger);
             return rowsAffected > 0;

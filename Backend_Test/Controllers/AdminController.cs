@@ -92,6 +92,25 @@ namespace Backend_Test.Controllers
             return Ok(new ApiResponse<object> { Success = true, StatusCode = 200, Message = "API Key enabled successfully." });
         }
 
+        // [Authorize(Roles = "Admin")]
+        // [HttpPost("apikeys/{id}/rotate")]
+        // [SwaggerOperation(Summary = "Generates a brand new secret key for a client. The old key stops working immediately.")]
+        // public async Task<IActionResult> RotateApiKey(int id)
+        // {
+        //     var newRawKey = await _apiKeyService.RotateApiKeyAsync(id);
+        //     if (newRawKey == null)
+        //     {
+        //         return NotFound(new ApiResponse<object> { Success = false, StatusCode = 404, Message = "API Key not found." });
+        //     }
+        //     return Ok(new ApiResponse<object> 
+        //     { 
+        //         Success = true, 
+        //         StatusCode = 200, 
+        //         Data = new { ApiKey = newRawKey }, 
+        //         Message = "API Key rotated successfully. This is the only time you will see this key. Store it safely!" 
+        //     });
+        // }
+
         [Authorize(Roles = "Admin")]
         [HttpDelete("apikeys/{id}")]
         [SwaggerOperation(Summary = "Permanently deletes an API key.")]
