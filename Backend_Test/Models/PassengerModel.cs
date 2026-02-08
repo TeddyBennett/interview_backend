@@ -7,8 +7,7 @@ namespace Backend_Test.Models
     public class PassengerModel
     {
         public int PassengerId { get; set; }
-        [Required]
-        public string DocId { get; set; } // Reference to Documents.Id
+        public string? DocId { get; set; } // Reference to Documents.Id (now optional for input)
         [Required]
         public string FirstName { get; set; }
         [Required]
@@ -26,6 +25,8 @@ namespace Backend_Test.Models
         public int? IdfDocTypeId { get; set; }
         public string? IdfDocNumber { get; set; }
         public int? CountryId { get; set; }
+        public DateTime? IssueDate { get; set; }
+        public DateTime? ExpiryDate { get; set; }
 
         public class PassengerDetail
         {

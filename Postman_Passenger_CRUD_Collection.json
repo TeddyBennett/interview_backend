@@ -37,11 +37,6 @@
 							"mode": "formdata",
 							"formdata": [
 								{
-									"key": "DocId",
-									"value": "23334",
-									"type": "text"
-								},
-								{
 									"key": "FirstName",
 									"value": "Jane",
 									"type": "text"
@@ -57,6 +52,11 @@
 									"type": "text"
 								},
 								{
+									"key": "Gender",
+									"value": "Female",
+									"type": "text"
+								},
+								{
 									"key": "CountryId",
 									"value": "1",
 									"type": "text"
@@ -68,12 +68,17 @@
 								},
 								{
 									"key": "IdfDocNumber",
-									"value": "P1234567",
+									"value": "PASSPORT123",
 									"type": "text"
 								},
 								{
-									"key": "Gender",
-									"value": "Female",
+									"key": "IssueDate",
+									"value": "2020-01-01",
+									"type": "text"
+								},
+								{
+									"key": "ExpiryDate",
+									"value": "2030-01-01",
 									"type": "text"
 								},
 								{
@@ -156,11 +161,6 @@
 						"body": {
 							"mode": "formdata",
 							"formdata": [
-								{
-									"key": "DocId",
-									"value": "12345",
-									"type": "text"
-								},
 								{
 									"key": "FirstName",
 									"value": "Jane",

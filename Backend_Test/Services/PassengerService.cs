@@ -41,7 +41,9 @@ namespace Backend_Test.Services
                 {
                     DocumentTypeId = passenger.IdfDocTypeId.Value,
                     DocumentNumber = passenger.IdfDocNumber,
-                    IssuedCountryId = passenger.CountryId.Value
+                    IssuedCountryId = passenger.CountryId.Value,
+                    IssueDate = passenger.IssueDate,
+                    ExpiryDate = passenger.ExpiryDate
                 };
 
                 string docId = await _documentService.CreateDocumentAsync(docRequest);
