@@ -19,7 +19,7 @@ CREATE TABLE Administrators (
 );
 
 -- Insert a default admin user (Password: 'admin123' - Hashed with BCrypt)
-INSERT INTO Administrators (Username, PasswordHash, Role) 
+INSERT INTO Administrators (Username, Password, Role) 
 VALUES ('admin', '$2a$11$SxMErH4V0GjdvgxR8o/I5eAqsQaps8V9nuxJ4VftFuuPmvGu3C516', 'Admin');
 
 -- API Keys Table

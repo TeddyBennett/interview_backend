@@ -1,4 +1,4 @@
-﻿using API_DVETS.Services;
+using API_DVETS.Services;
 using AspStudio.Common;
 using Backend_Test.Controllers;
 using Backend_Test.Filters;
@@ -55,12 +55,30 @@ builder.Services.AddSwaggerGen(c =>
         Scheme = "Bearer"
     });
 
+    c.AddSecurityDefinition("X-API-Key", new OpenApiSecurityScheme
+    {
+        Description = "API Key {your api key}",
+        Name = "X-API-Key",
+        In = ParameterLocation.Header,
+        Type = SecuritySchemeType.ApiKey,
+        Scheme = "X-API-Key"
+    });
+
     c.AddSecurityRequirement(new OpenApiSecurityRequirement{
     {
         new OpenApiSecurityScheme{
             Reference = new OpenApiReference{
                 Type = ReferenceType.SecurityScheme,
                 Id = "Bearer"
+            }
+        },
+        Array.Empty<string>()
+    },
+    {
+        new OpenApiSecurityScheme{
+            Reference = new OpenApiReference{
+                Type = ReferenceType.SecurityScheme,
+                Id = "X-API-Key"
             }
         },
         Array.Empty<string>()
